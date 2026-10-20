@@ -1,0 +1,16 @@
+GITHUB TUTTRIAL
+
+1 - INNAN MAN GÖR NÅGONTING NYTT, KÖR FÖLJANDE (I KOMMANDOTOLKEN):
+git switch main 
+git pull
+git switch -c MAPPNAMN # t.ex. Plantor/Ekonomfighter 
+
+2 - NÄR DU GJORT NÅGONTING NYTT
+git status (visar vad som ändrats, visar också vilken branch man är på!)
+
+git add . ("packar" allt i denna mapp i en låda)
+
+git commit -m "La till en ekonomfighter" (tejpar ihop lådan med allt du packat och fäster en kommentar på den)
+
+git push -u origin Plantor/Ekonomfighter (skickar lådan till github) # -u origin Plantor/Ekonomfighter behövs bara första gången man pushar till en ny branch
+
