@@ -1,0 +1,548 @@
+using System;
+using System.Data;
+using System.Dynamic;
+using System.Net.Mail;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+
+/*
+
+Var få in kraven
+
+Zombies factory
+Menu generics
+
+
+
+IUpdater
+
+
+
+*/
+
+
+
+namespace Application
+{
+    class Program
+    {
+        const int PIXEL_SIZE = 10;
+        const int TICK_MS = 50;
+        static void Main(string[] args)
+        {
+            /*
+            Instantiera alla objekt och deras updaters
+            */
+
+
+            while (true)
+            {
+                game.Update();
+
+
+                Thread.Sleep(TICK_MS); 
+            }
+
+        }
+
+        public class Game() : IGameWorld
+        {
+            List<IUpdater> updaters;
+
+            public int Width => throw new NotImplementedException();
+
+            IEnumerable<Zombie> IGameWorld.AllZombies()
+            {
+                throw new NotImplementedException();
+            }
+
+            Zombie? IGameWorld.FrontZombieInLane(int lane)
+            {
+                throw new NotImplementedException();
+            }
+
+            void IGameWorld.Register(IUpdater updater, int ticksPerUpdate)
+            {
+                throw new NotImplementedException();
+            }
+
+            IEnumerable<Zombie> IGameWorld.ZombiesInLane(int lane)
+            {
+                throw new NotImplementedException();
+            }
+
+            //foreach updater update
+
+
+        }
+
+
+        /*
+        public abstract class Spell(string name, IReadOnlyList<IEffect> effects)
+        {
+            public string Name { get; } = name;
+            protected IReadOnlyList<IEffect> Effects { get; } = effects;
+
+            public abstract void Cast(int lane, IGameWorld world);
+        }
+
+        public abstract class AreaSpell(string name, IReadOnlyList<IEffect> effects)
+            : Spell(name, effects)
+        {
+            public sealed override void Cast(int lane, IGameWorld world)
+            {
+                foreach (var zombie in SelectTargets(lane, world))
+                    foreach (var effect in Effects)
+                        effect.Apply(zombie);
+            }
+
+            protected abstract IEnumerable<Zombie> SelectTargets(int lane, IGameWorld world);
+        }
+
+        public class BeamSpell(string name, IReadOnlyList<IEffect> effects)
+            : AreaSpell(name, effects)
+        {
+            protected override IEnumerable<Zombie> SelectTargets(int lane, IGameWorld world)
+                => world.ZombiesInLane(lane);
+        }
+
+        public class AuraSpell(string name, IReadOnlyList<IEffect> effects)
+            : AreaSpell(name, effects)
+        {
+            protected override IEnumerable<Zombie> SelectTargets(int lane, IGameWorld world)
+                => world.AllZombies();
+        }
+
+        public class ProjectileSpell(string name, IReadOnlyList<IEffect> effects,
+                                    int ticksPerStep, char symbol)
+            : Spell(name, effects)
+        {
+            public override void Cast(int lane, IGameWorld world)
+            {
+                var projectile = new Projectile(symbol, lane, Effects, world);
+                world.Register(projectile, ticksPerStep);
+            }
+        }
+
+        public interface IGameWorld
+        {
+            int Width { get; }
+            IEnumerable<Zombie> ZombiesInLane(int lane);
+            IEnumerable<Zombie> AllZombies();
+            Zombie? FrontZombieInLane(int lane);   // zombien längst till vänster i lanen
+            void Register(IUpdater updater, int ticksPerUpdate);
+        }
+
+
+        public class Projectile(char symbol, int lane, IReadOnlyList<IEffect> effects, IGameWorld world)
+    : IUpdater
+        {
+            public char Symbol { get; } = symbol;
+            public int Lane { get; } = lane;
+            public int X { get; private set; } = 0;
+            public bool IsAlive { get; private set; } = true;
+
+            public void Update()
+            {
+                if (!IsAlive) return;
+
+                X+=PIXEL_SIZE;
+
+                var target = world.FrontZombieInLane(Lane);
+                if (target != null && target.X <= X)
+                {
+                    foreach (var effect in effects)
+                        effect.Apply(target);
+                    IsAlive = false;
+                    return;
+                }
+
+                if (X >= world.Width)
+                    IsAlive = false;
+            }
+        }
+
+
+        
+
+
+        public interface IEffectFactory
+        {
+            public IEffect GenerateEffect();
+        }
+
+
+        public class RandomDamageEffectFactory(int start, int end) : IEffectFactory
+        {
+            Random rand = new();
+
+
+            // En funktion per effekttyp, så att varje anrop skapar ett nytt objekt
+        
+
+            public IEffect GenerateEffect()
+            {
+                //Hårdkodade gränser pga orsak
+                return new DamageEffect(rand.Next(start,end));
+            }
+
+        }
+
+
+
+        public interface ISpellFactory
+        {
+            public ISpell GenerateSpell();
+        }
+        public interface IDeliveryFactory
+        {
+            public IDelivery GenerateDelivery();
+        }
+        public class SpellFactory(IDeliveryFactory deliveryFactory, IEffectFactory effectFactory, int effectAmount) : ISpellFactory
+        {
+            public Spell GenerateSpell()
+            {
+                IDelivery delivery = deliveryFactory.GenerateDelivery();
+                List<IEffect> effects = new List<IEffect>();
+                for (int i = 0; i < effectAmount; i++)
+                {
+                    effects.Add(effectFactory.GenerateEffect());
+                }
+                return new Spell(delivery,effects);
+            }
+        }
+
+        public interface IProjectileFactory
+        {
+            public Projectile CreateProjectile(List<IEffect> effects);
+        }
+
+
+        // Normal i hastighet
+        public class NormalProjectileFactory : IProjectileFactory
+        {
+            int normalSpeed = 2; //nånting med delayer
+            public Projectile CreateProjectile(List<IEffect> effects)
+            {
+                return new Projectile(effects);
+            }
+        }
+
+        public class Spell(IDelivery delivery, List<IEffect> effects)
+        {
+            public void Cast()
+            {
+                delivery.Deliver(effects);
+            }    
+        }
+
+        public interface IDelivery
+        {
+            public void Deliver(List<IEffect> effects);
+        }
+
+        public interface IWorld
+        {
+            public int Width {get;}
+            public List<Zombie> GetAllZombies();
+            public List<Zombie> GetZombiesInLane(int lane);
+            public void RegisterProjectile(Projectile projectile);
+            // Placerar projektilen i rätt lane och skapar en delayer åt den
+        }
+
+        public class ProjectileDelivery(IWorld world, IProjectileFactory projectileFactory) : IDelivery
+        {
+            public void Deliver(List<IEffect> effects)
+            {
+
+                world.RegisterProjectile(projectileFactory.CreateProjectile(effects));
+                //projectileFactory.CreateProjectile(effects);
+            }
+        }
+
+        public class Projectile(List<IEffect> effects, IWorld world) : IUpdater
+        {
+            public int X {get; private set;}
+            public int Y {get;}
+            public bool IsAlive {get; set;} = true;
+
+            public void Update()
+            {
+                if (!IsAlive) return;
+
+                X+=PIXEL_SIZE;
+
+                // <= istället för == så att projektilen inte hoppar förbi en zombie
+                // som gick mot den under samma tick
+                Zombie? hit = world.GetZombiesInLane(Y)
+                    .Where(z => z.Alive && z.X <= X)
+                    .OrderBy(z => z.X)
+                    .FirstOrDefault();
+
+                if (hit != null)
+                {
+                    Hit(hit);
+                    IsAlive = false;
+                    return;
+                }
+
+                if (X >= world.Width)
+                {
+                    IsAlive = false;
+                }
+            }
+
+            public void Hit(Zombie zombie)
+            {
+                foreach (IEffect effect in effects)
+                {
+                    effect.Apply(zombie);
+                }
+            }
+        }
+        public class Aura(IWorld world) : IDelivery
+        {
+            public void Deliver(List<IEffect> effects)
+            {
+
+                
+                foreach (Zombie zomb in world.GetAllZombies())
+                {
+                    foreach (IEffect effect in effects)
+                    {
+                        effect.Apply(zomb);
+                    }
+                }
+            }
+        }
+        public class Beam(IWorld world, int lane) : IDelivery
+        {
+            public void Deliver(List<IEffect> effects)
+            {
+                foreach (Zombie zomb in world.GetZombiesInLane(lane))
+                {
+                    foreach (IEffect effect in effects)
+                    {
+                        effect.Apply(zomb);
+                    }
+                }
+            }
+        }
+
+
+
+
+*/
+
+
+
+        public class Lane()
+        {
+            private Plant plant;
+            private List<Zombie> zombies;
+            private List<Projectile> projectiles;
+
+            public Zombie FirstZombie()
+            {
+                // Vilken zombie har minsta x-värdet.
+                return null;
+            }
+
+            public void AddProjectile(Projectile projectile)
+            {
+                projectiles.Add(projectile);
+            }
+
+            public void UseMove()
+            {
+                plant.UseMove(this);
+            }
+
+            public void Update()
+            {
+                plant.Update();
+                foreach (Zombie zomb in zombies)
+                {
+                    zomb.Update();
+                }
+                foreach (Projectile proj in projectiles)
+                {
+                    proj.Update();
+                }
+            }
+        }
+
+
+        public enum Status
+        {
+            Poison,
+            Fire
+        }
+        
+
+
+        //FRÅGA: Meningslöst att använda strategy-pattern här p.g.a. implementering av Update?
+        public abstract class MovingBehavior (int ticksPerStep)
+        {
+            private int ticksSinceStep = 0;
+
+            public void Update(Zombie mover)
+            {
+                ticksSinceStep++;
+                if (ticksSinceStep < ticksPerStep) return;
+
+                ticksSinceStep = 0;
+                Move(mover);
+            }
+
+            protected abstract void Move(Zombie mover);
+        }
+
+
+
+        public class WalkingBehavior(int ticksPerStep) : MovingBehavior(ticksPerStep)
+        {
+            public override void Move(Zombie mover)
+            {
+                mover.X -= PIXEL_SIZE;
+            }
+        }
+
+        public interface IPositionable
+        {
+            public bool CollidesWith(IPositionable other)
+            {
+                return X == other.X && Y == other.Y;
+            }
+            public int X {get;set;}
+            public int Y {get;set;}
+        }
+
+        public class Zombie(int hp, MovingBehavior moveBehavior) : IPositionable
+        {
+
+            /*
+            Resistances?
+            Behavior?
+            inte behöva ta in resistances och vulnerabilities hela tiden?
+            */
+
+            public Status Status {get;}
+            public List<Status> Resistances {get;}
+            public List<Status> Vulnerabilities {get;}
+            public int X {get;set;}
+            public int Y {get;set;}
+            public bool Alive {get; private set;} = true;
+
+        
+            public void TakeDamage(int amount)
+            {
+                if (hp-amount > 0)
+                {
+                    hp -= amount;
+                }
+                else
+                {
+                    Die();
+                }
+            }
+
+            public void SetEffect()
+            {
+                
+            }
+
+            public void Update()
+            {
+                
+            }
+
+            public void Die()
+            {
+                Alive = false;
+            }
+        }
+
+        public interface IUpdater
+        {
+            public void Update();
+        }
+
+
+        public class Delayer(IUpdater updater, int ticksPerUpdate) : IUpdater
+        {
+            int ticksSinceUpdate = 0;
+            public int TicksPerUpdate { get; set; } = ticksPerUpdate;
+
+            public void Update()
+            {
+                ticksSinceUpdate++;
+                if (ticksSinceUpdate < TicksPerUpdate) return;
+
+                ticksSinceUpdate = 0;
+                updater.Update();
+            }
+        }
+
+        
+
+
+        public interface IEffect
+        {
+            public void Apply(Zombie zombie);
+
+        }
+
+        public class DamageEffect(int amount) : IEffect
+        {
+            public void Apply(Zombie zombie)
+            {
+                // Ta amount skada
+                zombie.TakeDamage(amount);
+            }
+
+        }
+
+        public class PoisonEffect() : IEffect
+        {
+            public void Apply(Zombie zombie)
+            {
+                // ta poison
+            }
+        }
+
+
+        public class Plant
+        {
+            List<Move> Moves {get;}
+            /*
+            discard-lista!
+            
+            */
+
+            /*
+            drawing thing, implementera IDrawable?
+            */
+
+            private int index {get; set;} = 0;
+            public void AddMove(Move newMove)
+            {
+                Moves.Add(newMove);
+            }
+
+            //FRÅGA: Ska vår plant ha en lane? 
+            public void UseMove(Lane lane)
+            {
+                Moves[index].Execute(lane);
+                index = (index + 1) % Moves.Count;
+            }
+        } /*
+            noita-stavar
+        */
+
+    }
+
+    
+
+}
