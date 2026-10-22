@@ -10,7 +10,7 @@ namespace Application
         public const int CANNON_TICKS = 20;
         public const int ZOMBIE_TICKS = 6;
         public const int SPAWN_TICKS = 30;
-        public const int ZOMBIE_HEALTH = 10;
+        public const int ZOMBIE_HEALTH = 100;
         public const int BASE_HEALTH = 3;
     }
 }

@@ -1,12 +1,21 @@
 using System.Collections;
 
+
+
+/*
+FRÅGA:
+Jättemånga listor med duplicerad logik. OK?
+
+*/
 namespace Application
 {
     public class Board : IWorld, IEnumerable<Zombie>
     {
+        //Vi har alla dessa listor för att bestämma vad som ritas över vad
         readonly EntityList<Cannon> cannons = new();
         readonly EntityList<Projectile> projectiles = new();
         readonly EntityList<Zombie> zombies = new();
+        readonly EntityList<Flash> flashes = new();
         readonly EntityList<IUpdater> others = new();
 
         public void Register(IUpdater updater, int ticksPerUpdate)
@@ -21,12 +30,19 @@ namespace Application
         public void Add(Zombie zombie, int ticksPerUpdate)
             => zombies.Add(zombie, ticksPerUpdate);
 
+        public void Add(Flash flash, int ticksPerUpdate)
+            => flashes.Add(flash, ticksPerUpdate);
+
         public void Update()
         {
+            flashes.Update();
             cannons.Update();
             projectiles.Update();
             zombies.Update();
             others.Update();
+
+
+            flashes.RemoveDead();
             cannons.RemoveDead();
             projectiles.RemoveDead();
             zombies.RemoveDead();
@@ -48,9 +64,10 @@ namespace Application
 
         public void Draw(Canvas canvas)
         {
-            IEnumerable<IDrawable> drawables = cannons
-                .Concat<IDrawable>(projectiles)
-                .Concat(zombies);
+            IEnumerable<IDrawable> drawables = projectiles
+                .Concat<IDrawable>(cannons)
+                .Concat(zombies)
+                .Concat(flashes);
             foreach (IDrawable drawable in drawables)
                 drawable.Draw(canvas);
         }

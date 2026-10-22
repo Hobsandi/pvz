@@ -14,8 +14,8 @@ namespace Application
                     new TeleportingMovement(random, 5),
                     new SymbolSprite('T'), playerBase)
                 : new Zombie(start, ZOMBIE_HEALTH,
-                    new WalkingMovement(),
-                    new SymbolSprite('Z'), playerBase);
+                    new MichaelMovement(),
+                    new SymbolSprite('M'), playerBase);
             board.Add(zombie, ZOMBIE_TICKS);
         }
 

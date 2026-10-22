@@ -1,13 +1,12 @@
 namespace Application
 {
     public class ProjectileSpell(
-        IReadOnlyList<IEffect> effects,
+        IEffect effect,
         Board board,
         int ticksPerStep,
         IImpact impact,
         ISprite sprite) : ISpell
     {
-        readonly IEffect effect = new CompositeEffect(effects);
 
         public void Cast(Position origin)
         {

@@ -1,3 +1,5 @@
+
+/*
 using System;
 using System.Data;
 using System.Dynamic;
@@ -333,7 +335,7 @@ namespace Application
 
 
 
-*/
+
 
 
 
@@ -519,11 +521,10 @@ namespace Application
             /*
             discard-lista!
             
-            */
-
+ 
             /*
             drawing thing, implementera IDrawable?
-            */
+            
 
             private int index {get; set;} = 0;
             public void AddMove(Move newMove)
@@ -537,12 +538,13 @@ namespace Application
                 Moves[index].Execute(lane);
                 index = (index + 1) % Moves.Count;
             }
-        } /*
+        } 
             noita-stavar
-        */
+        
 
     }
 
     
 
 }
+

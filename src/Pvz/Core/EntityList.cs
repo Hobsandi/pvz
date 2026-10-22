@@ -2,7 +2,6 @@ using System.Collections;
 
 namespace Application
 {
-    //Vi vill förstå varför generics används här och inte vanlig implementation av gränssnitt
     // FALL #2:
     // VAD: Generics.
     // HUR: EntityList<T> konstrueras med Zombie, Projectile, Cannon

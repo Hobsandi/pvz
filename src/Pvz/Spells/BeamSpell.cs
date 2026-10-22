@@ -1,11 +1,16 @@
 namespace Application
 {
-    public class BeamSpell(IReadOnlyList<IEffect> effects, Board board)
-        : AreaSpell(effects)
+    public class BeamSpell(IEffect effect, Board board)
+        : AreaSpell(effect, board)
     {
+        protected override ISprite Sprite => new BeamSprite('=');
+
+        protected override int Ticks => 3;
+
+
         protected override IEnumerable<Zombie> SelectTargets(
             Position origin)
-            => board.FindZombiesInRowOf(origin);
+            => Board.FindZombiesInRowOf(origin);
 
         protected override string DescribeShape() => "Beam";
     }
