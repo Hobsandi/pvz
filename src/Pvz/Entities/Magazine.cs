@@ -1,37 +1,55 @@
 using System.Collections;
-/*
-VI GÖR OM MAGAZINE TILL ETT GRÄNSSNITT
-CANON TAR IN ETT IMAGAZINE
-Olika magasin implementerar GetEnumerator på olika sätt, t.ex.
-kör varje spell två gånger
-första, sen sista, sen andra, näst sista osv.
-
-kanske skiter vi i det helt och hållet
-
-
-
-*/
-
 
 namespace Application
 {
-    public class Magazine : IEnumerable<ISpell>
+    public class Magazine : IMagazine
     {
-        private List<ISpell> spells;
+        readonly List<ISpell> spells = [];
+        readonly IEnumerator<ISpell?> firingOrder;
+        readonly int maxCapacity;
+        int capacity;
 
-
-        public IEnumerator<ISpell> GetEnumerator()
+        public Magazine(int capacity, int maxCapacity)
         {
-            throw new NotImplementedException();
+            this.capacity = capacity;
+            this.maxCapacity = maxCapacity;
+            firingOrder = FiringOrder().GetEnumerator();
         }
 
-        // coolt namn
-        public void Load(ISpell spell) => spells.Add(spell);
-        
+        public bool IsFull => spells.Count >= capacity;
+        public bool CanGrow => capacity < maxCapacity;
 
-        IEnumerator IEnumerable.GetEnumerator()
+        // Coolt namn. Fullt magasin: första spellen åker ut.
+        public void Load(ISpell spell)
         {
-            return GetEnumerator();
+            if (IsFull) spells.RemoveAt(0);
+            spells.Add(spell);
         }
+
+        public void IncreaseCapacity()
+        {
+            if (CanGrow) capacity++;
+        }
+
+        public ISpell? Next()
+        {
+            firingOrder.MoveNext();
+            return firingOrder.Current;
+        }
+
+        // En egen oändlig iterator som har sitt eget index och läser listan
+        // på nytt varje steg. List<T>:s inbyggda enumerator kastar ett
+        // undantag om listan ändras, och Load ändrar den mitt i spelet.
+        IEnumerable<ISpell?> FiringOrder()
+        {
+            for (int i = 0; ; i++)
+                yield return spells.Count == 0 ? null : spells[i % spells.Count];
+        }
+
+        public IEnumerator<ISpell> GetEnumerator() => spells.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public string Describe() => $"Slots {spells.Count}/{capacity}";
     }
 }

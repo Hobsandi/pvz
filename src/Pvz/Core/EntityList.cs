@@ -15,6 +15,9 @@ namespace Application
         readonly List<Delayer> delayers = [];
         readonly List<Delayer> pending = [];
 
+        // Levande lista, t.ex. för menyer som ska se nya kanoner direkt
+        public IReadOnlyList<T> Items => items;
+
         public void Add(T item, int ticksPerUpdate)
         {
             items.Add(item);
@@ -25,7 +28,10 @@ namespace Application
         {
             foreach (Delayer delayer in delayers)
                 delayer.Update();
-            // Varför finns pending?
+            // Saker som läggs till under Update (t.ex. en projektil som en
+            // kanon skjuter, eller en ny bana mitt i en tick) hamnar i
+            // pending. Att lägga till i delayers medan foreach går över
+            // den ger "Collection was modified".
             delayers.AddRange(pending);
             pending.Clear();
         }

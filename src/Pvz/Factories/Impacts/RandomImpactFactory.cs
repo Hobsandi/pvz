@@ -1,9 +1,11 @@
 namespace Application
 {
-    public class RandomImpactFactory(IReadOnlyList<IImpactFactory> factories)
+    public class RandomImpactFactory(WeightedTable<IImpactFactory> factories)
         : IImpactFactory
     {
-        public IImpact GenerateImpact()
-            => factories[Random.Shared.Next(factories.Count)].GenerateImpact();
+        public RandomImpactFactory(IReadOnlyList<IImpactFactory> factories)
+            : this(WeightedTable<IImpactFactory>.Uniform(factories)) { }
+
+        public IImpact GenerateImpact() => factories.Pick().GenerateImpact();
     }
 }

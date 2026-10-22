@@ -18,6 +18,10 @@ namespace Application
         readonly EntityList<Flash> flashes = new();
         readonly EntityList<IUpdater> others = new();
 
+        // En bana per kanon
+        public int LaneCount => cannons.Items.Count;
+        public IReadOnlyList<Cannon> Cannons => cannons.Items;
+
         public void Register(IUpdater updater, int ticksPerUpdate)
             => others.Add(updater, ticksPerUpdate);
 
@@ -62,8 +66,12 @@ namespace Application
             Position center, int radius)
             => zombies.Where(zombie => zombie.IsWithin(center, radius));
 
-        public void Draw(Canvas canvas)
+        public void Draw(ICanvas canvas)
         {
+            for (int row = 0; row < LaneCount; row++)
+                for (int x = 0; x < canvas.Width; x++)
+                    canvas.Plot(x, row, '.', ConsoleColor.DarkGray);
+
             IEnumerable<IDrawable> drawables = projectiles
                 .Concat<IDrawable>(cannons)
                 .Concat(zombies)

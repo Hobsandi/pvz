@@ -1,9 +1,11 @@
 namespace Application
 {
-    public class RandomSpellFactory(IReadOnlyList<ISpellFactory> factories)
+    public class RandomSpellFactory(WeightedTable<ISpellFactory> factories)
         : ISpellFactory
     {
-        public ISpell GenerateSpell()
-            => factories[Random.Shared.Next(factories.Count)].GenerateSpell();
+        public RandomSpellFactory(IReadOnlyList<ISpellFactory> factories)
+            : this(WeightedTable<ISpellFactory>.Uniform(factories)) { }
+
+        public ISpell GenerateSpell() => factories.Pick().GenerateSpell();
     }
 }

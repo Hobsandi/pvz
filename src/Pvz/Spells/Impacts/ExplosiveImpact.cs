@@ -8,5 +8,7 @@ namespace Application
                 effect.Apply(zombie);
             return false;
         }
+
+        public string Describe() => $"Explosive projectile (radius {radius})";
     }
 }

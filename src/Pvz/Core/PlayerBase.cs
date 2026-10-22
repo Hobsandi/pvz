@@ -1,13 +1,19 @@
 namespace Application
 {
-    public class PlayerBase(int health) : IDescribable
+    public class PlayerBase(int maxHealth) : IDescribable
     {
-        int health = health;
+        public int MaxHealth { get; } = maxHealth;
+        public int Health { get; private set; } = maxHealth;
 
-        public void TakeHit() => health--;
+        public void TakeHit() => Health--;
 
-        public bool IsDestroyed() => health <= 0;
+        public void Heal(int amount)
+            => Health = Math.Min(MaxHealth, Health + amount);
 
-        public string Describe() => $"Base HP: {health} ";
+        public bool IsDamaged() => Health < MaxHealth;
+
+        public bool IsDestroyed() => Health <= 0;
+
+        public string Describe() => $"HP {Health}/{MaxHealth}";
     }
 }

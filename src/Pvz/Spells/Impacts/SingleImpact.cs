@@ -7,5 +7,7 @@ namespace Application
             effect.Apply(target);
             return false;
         }
+
+        public string Describe() => "Projectile";
     }
 }

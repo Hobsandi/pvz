@@ -25,9 +25,10 @@ namespace Application
 
         public bool IsPastRightEdge() => x > RIGHT_EDGE;
 
-        // Unsure about this one
-        public void Plot(Canvas canvas, char symbol)
-            => canvas.Plot(x / PIXEL_SIZE, row, symbol);
+        // Spelvärldens x är i "pixlar", PIXEL_SIZE pixlar per tecken.
+        public void Plot(ICanvas canvas, char symbol,
+            ConsoleColor color = ConsoleColor.Gray)
+            => canvas.Plot(x / PIXEL_SIZE, row, symbol, color);
 
         public int CompareTo(Position other) => x.CompareTo(other.x);
     }

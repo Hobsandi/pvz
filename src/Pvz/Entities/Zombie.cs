@@ -5,16 +5,20 @@ namespace Application
         int health,
         IMovement movement,
         ISprite sprite,
-        PlayerBase playerBase)
+        PlayerBase playerBase,
+        KillCounter kills)
         : IUpdater, IDrawable, IComparable<Zombie>
     {
         Position position = position;
         int health = health;
+        bool dead = false;
         // How would we implement different status effects?
         int frozenSteps = 0;
 
         public void Update()
         {
+            // Kan ha dött tidigare i samma tick (projektiler uppdateras först)
+            if (dead) return;
             if (frozenSteps > 0)
             {
                 frozenSteps--;
@@ -24,12 +28,24 @@ namespace Application
             if (!position.IsAtLeftEdge()) return;
 
             playerBase.TakeHit();
-            health = 0;
+            Die();
         }
 
-        public bool IsAlive() => health > 0;
+        public bool IsAlive() => !dead;
 
-        public void TakeDamage(int amount) => health -= amount;
+        public void TakeDamage(int amount)
+        {
+            if (dead) return;
+            health -= amount;
+            if (health <= 0) Die();
+        }
+
+        // Körs en gång, både när zombien dödas och när den når basen
+        void Die()
+        {
+            dead = true;
+            kills.Register();
+        }
 
         public void Freeze(int steps)
             => frozenSteps = Math.Max(frozenSteps, steps);
@@ -43,7 +59,7 @@ namespace Application
         public bool IsWithin(Position center, int radius)
             => position.IsWithin(center, radius);
 
-        public void Draw(Canvas canvas) => sprite.Draw(canvas, position);
+        public void Draw(ICanvas canvas) => sprite.Draw(canvas, position);
 
         public int CompareTo(Zombie? other)
             => other == null ? -1 : position.CompareTo(other.position);

@@ -2,6 +2,6 @@ namespace Application
 {
     public interface IDrawable
     {
-        void Draw(Canvas canvas);
+        void Draw(ICanvas canvas);
     }
 }

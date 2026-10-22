@@ -28,6 +28,6 @@ namespace Application
 
         public bool IsAlive() => alive;
 
-        public void Draw(Canvas canvas) => sprite.Draw(canvas, position);
+        public void Draw(ICanvas canvas) => sprite.Draw(canvas, position);
     }
 }

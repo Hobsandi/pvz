@@ -2,21 +2,27 @@ using static Application.GameConfig;
 
 namespace Application
 {
-    // Factory instead?
-    public class ZombieSpawner(
-        Board board, PlayerBase playerBase, Random random) : IUpdater
+    // Registreras med 1 tick och räknar själv, eftersom Delayers
+    // intervall är fast och settings.Interval ändras under rundan.
+    public class ZombieSpawner(Board board, SpawnSettings settings) : IUpdater
     {
+        int ticks = 0;
+
         public void Update()
         {
-            Position start = new(RIGHT_EDGE, random.Next(ROWS));
-            Zombie zombie = random.Next(4) == 0
-                ? new Zombie(start, ZOMBIE_HEALTH,
-                    new TeleportingMovement(random, 5),
-                    new SymbolSprite('T'), playerBase)
-                : new Zombie(start, ZOMBIE_HEALTH,
-                    new MichaelMovement(),
-                    new SymbolSprite('M'), playerBase);
-            board.Add(zombie, ZOMBIE_TICKS);
+            if (++ticks < settings.Interval) return;
+            ticks = 0;
+
+            // Olika banor, så att en våg inte staplas på samma ruta
+            IEnumerable<int> lanes = Enumerable.Range(0, board.LaneCount)
+                .OrderBy(_ => Random.Shared.Next())
+                .Take(settings.ZombiesPerWave);
+            foreach (int lane in lanes)
+            {
+                Position start = new(RIGHT_EDGE, lane);
+                Zombie zombie = settings.Zombies.Pick().Create(start, settings.Health);
+                board.Add(zombie, ZOMBIE_TICKS);
+            }
         }
 
         public bool IsAlive() => true;

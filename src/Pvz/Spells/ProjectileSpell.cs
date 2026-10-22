@@ -15,6 +15,6 @@ namespace Application
             board.Add(projectile, ticksPerStep);
         }
 
-        public string Describe() => $"Projectile of {effect.Describe()}";
+        public string Describe() => $"{impact.Describe()} of {effect.Describe()}";
     }
 }

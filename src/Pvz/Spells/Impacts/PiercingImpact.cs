@@ -8,5 +8,7 @@ namespace Application
             effect.Apply(target);
             return true;
         }
+
+        public string Describe() => "Piercing projectile";
     }
 }

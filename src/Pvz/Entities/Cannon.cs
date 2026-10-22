@@ -1,23 +1,23 @@
 namespace Application
 {
-    public class Cannon(Position position, ISprite sprite)
-        : IUpdater, IDrawable
+    public class Cannon(Position position, int lane, IMagazine magazine,
+        ISprite sprite) : IUpdater, IDrawable, IDescribable
     {
-        readonly List<ISpell> spells = [];
-        int index = 0;
+        public int Lane => lane;
+        public IEnumerable<ISpell> Spells => magazine;
+        public bool IsFull => magazine.IsFull;
+        public bool CanGrow => magazine.CanGrow;
 
-        public void AddSpell(ISpell spell) => spells.Add(spell);
+        public void Load(ISpell spell) => magazine.Load(spell);
 
-        public void Update()
-        {
-            if (spells.Count == 0) return;
+        public void IncreaseCapacity() => magazine.IncreaseCapacity();
 
-            spells[index].Cast(position);
-            index = (index + 1) % spells.Count;
-        }
+        public void Update() => magazine.Next()?.Cast(position);
 
         public bool IsAlive() => true;
 
-        public void Draw(Canvas canvas) => sprite.Draw(canvas, position);
+        public void Draw(ICanvas canvas) => sprite.Draw(canvas, position);
+
+        public string Describe() => $"Lane {lane + 1}   {magazine.Describe()}";
     }
 }
