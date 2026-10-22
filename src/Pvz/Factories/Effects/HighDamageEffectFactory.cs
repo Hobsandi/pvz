@@ -1,8 +1,8 @@
 namespace Application
 {
-    public class HighDamageEffectFactory : IEffectFactory
+    public class HighDamageEffectFactory(int zombieHealth) : IEffectFactory
     {
         public IEffect GenerateEffect()
-            => new DamageEffect(Random.Shared.Next(GameConfig.ZOMBIE_HEALTH / 2, GameConfig.ZOMBIE_HEALTH + 1));
+            => new DamageEffect(Random.Shared.Next(zombieHealth / 2, zombieHealth + 1));
     }
 }
