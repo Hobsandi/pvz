@@ -4,7 +4,9 @@ namespace Application
     // OnKill körs mitt i board.Update, så här noteras bara att en
     // uppgradering väntar. GameRunner kör den efter ticken, och spelet
     // står still medan menyn är öppen.
-    public class Upgrader(Difficulty difficulty, Board board) : IKillObserver
+    // Tar en ISpellFactory, inte en konkret klass: Upgrader bryr sig inte
+    // om hur spellsen skapas, bara att den kan få nya.
+    public class Upgrader(ISpellFactory spellFactory, Board board) : IKillObserver
     {
         const int SPELL_CHOICES = 3;
 
@@ -40,7 +42,7 @@ namespace Application
             List<MenuItem<ISpell>> items = new();
             for (int i = 0; i < SPELL_CHOICES; i++)
             {
-                ISpell spell = difficulty.GenerateSpell();
+                ISpell spell = spellFactory.GenerateSpell();
                 items.Add(new MenuItem<ISpell>(spell.Describe(), spell));
             }
             return new Menu<ISpell>("Upgrade! Pick a spell:", items).Choose();

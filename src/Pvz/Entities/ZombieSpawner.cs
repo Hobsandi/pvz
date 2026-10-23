@@ -2,17 +2,16 @@ using static Application.GameConfig;
 
 namespace Application
 {
-    // Factory instead?
+    // Bestämmer när och var. Vad som spawnas bestämmer fabriken.
     public class ZombieSpawner(
-        Board board, 
-        PlayerBase playerBase, 
+        Board board,
         Random random,
         int zombieTicks,
-        Difficulty difficulty) : IUpdater
+        ScalingZombieFactory zombieFactory) : IUpdater
     {
         public void Update()
         {
-            Zombie zombie = difficulty.GenerateZombie(board.RandomZombiePosition(random));
+            Zombie zombie = zombieFactory.GenerateZombie(board.RandomZombiePosition(random));
             board.Add(zombie, zombieTicks);
         }
 

@@ -25,11 +25,12 @@ namespace Application
         // och sådana går bara att anropa via gränssnittstypen
         ICanvas field;
         ICanvas hud;
+        ICanvas cannonCursor;
+        ICanvas cannonMenu;
 
         Board board = new();
         PlayerBase playerBase = new (baseHealth);
         KillCounter killCounter;
-        Difficulty difficulty;
         Upgrader upgrader;
 
 
@@ -39,7 +40,7 @@ namespace Application
 
         public void Run()
         {
-            Console.CursorVisible = false;
+            Console.CursorVisible = true;
 
 
             SetUpViewports();
@@ -92,6 +93,7 @@ namespace Application
 
             field = new Viewport(canvas, x, y, COLUMNS, ROWS);
             hud = new Viewport(canvas, x, y + ROWS + HUD_GAP, COLUMNS, HUD_HEIGHT);
+            cannonCursor = new Viewport(canvas,x-2,y,1,ROWS);
         }
 
         // Ritar en bild av spelet: planen och basens hälsa.
@@ -103,6 +105,8 @@ namespace Application
 
             hud.Write(0, 0, playerBase.Describe());
             hud.Write(0, 1, $"Zombies killed: {killCounter.Kills}!");
+
+            cannonCursor.Write(0,0,">");
 
             canvas.Render();
         }
@@ -124,10 +128,14 @@ namespace Application
                 board, 3, new ExplosiveImpact(board,1), new SymbolSprite('o', ConsoleColor.Yellow)
             );
 
-            difficulty = new Difficulty(startingZombieHealth, playerBase, killCounter, board, rand);
-            killCounter.Subscribe(difficulty);
 
-            upgrader = new Upgrader(difficulty, board);
+
+            // Zombierna blir svårare med kills, därför lyssnar fabriken på dem
+            ScalingZombieFactory zombieFactory = new(startingZombieHealth, playerBase, killCounter, rand);
+            killCounter.Subscribe(zombieFactory);
+
+            ISpellFactory spellFactory = new WeightedSpellFactory(board, startingZombieHealth, rand);
+            upgrader = new Upgrader(spellFactory, board);
             killCounter.Subscribe(upgrader);
 
             for (int row = 0; row < 4; row++) {
@@ -137,7 +145,8 @@ namespace Application
                 board.Add(cannon, cannonTicks);
             }
 
-            ZombieSpawner spawner = new(board, playerBase, rand, zombieTicks, difficulty);
+
+            ZombieSpawner spawner = new(board, rand, zombieTicks, zombieFactory);
             board.Register(spawner, spawnTicks);
         }
     }
