@@ -9,6 +9,7 @@ namespace Application
         readonly Canvas canvas = new(COLUMNS, ROWS);
         Board board = new();
         PlayerBase playerBase = new(BASE_HEALTH);
+        KillCounter killCounter = new();
 
         public string Describe()
             => $"Start game";
@@ -37,6 +38,8 @@ namespace Application
             board.Draw(canvas);
             canvas.Render();
             Console.WriteLine(playerBase.Describe());
+            Console.WriteLine($"Zombies killed: {killCounter.Kills}!");
+
         }
 
         // Kanoner och zombiespawner, det som låg i Program förut
@@ -55,7 +58,7 @@ namespace Application
                 board.Add(cannon, CANNON_TICKS);
             }
 
-            ZombieSpawner spawner = new(board, playerBase, new Random(), ZOMBIE_HEALTH, ZOMBIE_TICKS);
+            ZombieSpawner spawner = new(board, playerBase, new Random(), ZOMBIE_HEALTH, ZOMBIE_TICKS, killCounter);
             board.Register(spawner, SPAWN_TICKS);
         }
     }

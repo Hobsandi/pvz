@@ -5,13 +5,17 @@ namespace Application
         int health,
         IMovement movement,
         ISprite sprite,
-        PlayerBase playerBase)
+        PlayerBase playerBase,
+        KillCounter killCounter
+        )
         : IUpdater, IDrawable, IComparable<Zombie>
     {
         Position position = position;
-        int health = health;
+
+        
         // How would we implement different status effects?
         int frozenSteps = 0;
+        bool hasDied = false;
 
         public void Update()
         {
@@ -20,6 +24,9 @@ namespace Application
                 frozenSteps--;
                 return;
             }
+
+
+
             position = movement.Move(position);
             if (!position.IsAtLeftEdge()) return;
 
@@ -27,7 +34,13 @@ namespace Application
             health = 0;
         }
 
-        public bool IsAlive() => health > 0;
+        public bool IsAlive()  {
+            if (health < 1 && !hasDied) {
+                hasDied = true;
+                killCounter.Increment();
+            }
+            return health > 0;
+        }
 
         public void TakeDamage(int amount) => health -= amount;
 
@@ -46,6 +59,6 @@ namespace Application
         public void Draw(Canvas canvas) => sprite.Draw(canvas, position);
 
         public int CompareTo(Zombie? other)
-            => other == null ? -1 : position.CompareTo(other.position);
+            => other == null ? -1 : this.position.CompareTo(other.position);
     }
 }

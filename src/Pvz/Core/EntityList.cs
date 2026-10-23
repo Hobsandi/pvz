@@ -25,7 +25,6 @@ namespace Application
         {
             foreach (Delayer delayer in delayers)
                 delayer.Update();
-            // Varför finns pending?
             delayers.AddRange(pending);
             pending.Clear();
         }
