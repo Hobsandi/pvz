@@ -4,7 +4,7 @@ namespace Application
 {
     public class TrailSprite(char head, char tail) : ISprite
     {
-        public void Draw(Canvas canvas, Position at)
+        public void Draw(ICanvas canvas, Position at)
         {
             at.Shift(-PIXEL_SIZE).Plot(canvas, tail);
             at.Plot(canvas, head);

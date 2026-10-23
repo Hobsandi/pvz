@@ -71,7 +71,7 @@ namespace Application
             Position center, int radius)
             => zombies.Where(zombie => zombie.IsWithin(center, radius));
 
-        public void Draw(Canvas canvas)
+        public void Draw(ICanvas canvas)
         {
             IEnumerable<IDrawable> drawables = projectiles
                 .Concat<IDrawable>(cannons)

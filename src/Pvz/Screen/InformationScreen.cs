@@ -1,8 +1,8 @@
 namespace Application
 {
-    public class InformationScreen(string desriptor, string info) : IScreen
+    public class InformationScreen(string descriptor, string info) : IScreen
     {
-        public string Describe() => desriptor;
+        public string Describe() => descriptor;
         public void Display()
         {
             Console.WriteLine(info);

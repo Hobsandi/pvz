@@ -56,7 +56,7 @@ namespace Application
         public bool IsWithin(Position center, int radius)
             => position.IsWithin(center, radius);
 
-        public void Draw(Canvas canvas) => sprite.Draw(canvas, position);
+        public void Draw(ICanvas canvas) => sprite.Draw(canvas, position);
 
         public int CompareTo(Zombie? other)
             => other == null ? -1 : this.position.CompareTo(other.position);

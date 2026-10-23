@@ -12,6 +12,9 @@ namespace Application
 
         public Position MoveToRow(int newRow) => new(x, newRow);
 
+        // Flyttar upp (negativt) eller ner (positivt) från nuvarande rad
+        public Position ShiftRow(int dRow) => new(x, row + dRow);
+
         public bool IsOnSameRowAs(Position other) => row == other.row;
 
         public bool IsAtOrPast(Position other)
@@ -26,7 +29,7 @@ namespace Application
         public bool IsPastRightEdge() => x > RIGHT_EDGE;
 
         // Unsure about this one
-        public void Plot(Canvas canvas, char symbol)
+        public void Plot(ICanvas canvas, char symbol)
             => canvas.Plot(x / PIXEL_SIZE, row, symbol);
 
         public int CompareTo(Position other) => x.CompareTo(other.x);

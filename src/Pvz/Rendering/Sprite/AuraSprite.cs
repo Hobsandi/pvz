@@ -5,7 +5,7 @@ namespace Application
     // Fyller hela brädet till höger om origin, på alla rader.
     public class AuraSprite(char symbol) : ISprite
     {
-        public void Draw(Canvas canvas, Position at)
+        public void Draw(ICanvas canvas, Position at)
         {
             for (int row = 0; row < ROWS; row++)
             {

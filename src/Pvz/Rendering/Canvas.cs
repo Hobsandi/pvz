@@ -2,7 +2,7 @@ using System.Text;
 
 namespace Application
 {
-    public class Canvas(int width, int height)
+    public class Canvas(int width, int height) : ICanvas
     {
         readonly char[,] cells = new char[height, width];
 
@@ -10,7 +10,7 @@ namespace Application
         {
             for (int row = 0; row < height; row++)
                 for (int x = 0; x < width; x++)
-                    cells[row, x] = '.';
+                    cells[row, x] = ' ';
         }
 
         // Needs explaining

@@ -15,8 +15,17 @@ namespace Application
         const int basicSpellDamage = 100;
         const int cannonTicks = 20;
 
+        // Layout
+        const int HUD_GAP = 1;      // tomma rader mellan plan och HUD
+        const int HUD_HEIGHT = 2;   // HP och kills
 
-        readonly Canvas canvas = new(COLUMNS, ROWS);
+
+        Canvas canvas;
+        // ICanvas och inte Viewport: Write är en default-metod i ICanvas,
+        // och sådana går bara att anropa via gränssnittstypen
+        ICanvas field;
+        ICanvas hud;
+
         Board board = new();
         PlayerBase playerBase = new (baseHealth);
         KillCounter killCounter;
@@ -30,6 +39,12 @@ namespace Application
 
         public void Run()
         {
+            Console.CursorVisible = false;
+
+
+            SetUpViewports();
+
+
             board = new();
             playerBase = new(baseHealth);
             killCounter = new KillCounter();
@@ -55,15 +70,49 @@ namespace Application
             Console.ReadLine();
         }
 
+        // Planen centrerad i fönstret, med HUD:en direkt under:
+        //
+        //     C....o.....Z.............   <- field
+        //     C.........M..............
+        //                                 <- en tom rad
+        //     Base HP: 3                  <- hud
+        //     Zombies killed: 12!
+        //
+        // Hela blocket (plan + mellanrum + HUD) centreras.
+        void SetUpViewports()
+        {
+            // -1 så att terminalen inte radbryter eller scrollar på sista raden
+            int width = Console.WindowWidth - 1;
+            int height = Console.WindowHeight - 1;
+            canvas = new Canvas(width, height);
+
+            int blockHeight = ROWS + HUD_GAP + HUD_HEIGHT;
+            int x = Math.Max(0, (width - COLUMNS) / 2);
+            int y = Math.Max(0, (height - blockHeight) / 2);
+
+            field = new Viewport(canvas, x, y, COLUMNS, ROWS);
+            hud = new Viewport(canvas, x, y + ROWS + HUD_GAP, COLUMNS, HUD_HEIGHT);
+        }
+
         // Ritar en bild av spelet: planen och basens hälsa.
         public void Display()
         {
             canvas.Clear();
-            board.Draw(canvas);
-            canvas.Render();
-            Console.WriteLine(playerBase.Describe());
-            Console.WriteLine($"Zombies killed: {killCounter.Kills}!");
+            DrawFieldBackground();
+            board.Draw(field);
 
+            hud.Write(0, 0, playerBase.Describe());
+            hud.Write(0, 1, $"Zombies killed: {killCounter.Kills}!");
+
+            canvas.Render();
+        }
+
+        // Prickar på planen, så man ser var den är (Canvas.Clear fyller med mellanslag)
+        void DrawFieldBackground()
+        {
+            for (int row = 0; row < ROWS; row++)
+                for (int col = 0; col < COLUMNS; col++)
+                    field.Plot(col, row, '.');
         }
 
         // Kanoner och zombiespawner, det som låg i Program förut
@@ -72,7 +121,7 @@ namespace Application
             Random rand = new Random();
             ISpell basicSpell = new ProjectileSpell(
                 new DamageEffect(basicSpellDamage),
-                board, 3, new SingleImpact(), new SymbolSprite('o')
+                board, 3, new ExplosiveImpact(board,1), new SymbolSprite('o')
             );
 
             difficulty = new Difficulty(startingZombieHealth, playerBase, killCounter, board, rand);

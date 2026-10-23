@@ -12,7 +12,7 @@ namespace Application
 
         public bool IsAlive() => true;
 
-        public void Draw(Canvas canvas) => sprite.Draw(canvas, position);
+        public void Draw(ICanvas canvas) => sprite.Draw(canvas, position);
 
         // Kanonens spells, t.ex. "Projectile of 25 damage, Beam of freeze..."
         public string Describe()
