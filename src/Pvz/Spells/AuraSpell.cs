@@ -3,7 +3,7 @@ namespace Application
     public class AuraSpell(IEffect effect, Board board)
         : AreaSpell(effect, board)
     {
-        protected override ISprite Sprite => new AuraSprite('Ö');
+        protected override ISprite Sprite => new AuraSprite('Ö', ConsoleColor.Magenta);
 
         protected override int Ticks => 3;
 

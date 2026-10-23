@@ -112,7 +112,7 @@ namespace Application
         {
             for (int row = 0; row < ROWS; row++)
                 for (int col = 0; col < COLUMNS; col++)
-                    field.Plot(col, row, '.');
+                    field.Plot(col, row, '.', ConsoleColor.DarkGray);
         }
 
         // Kanoner och zombiespawner, det som låg i Program förut
@@ -121,7 +121,7 @@ namespace Application
             Random rand = new Random();
             ISpell basicSpell = new ProjectileSpell(
                 new DamageEffect(basicSpellDamage),
-                board, 3, new ExplosiveImpact(board,1), new SymbolSprite('o')
+                board, 3, new ExplosiveImpact(board,1), new SymbolSprite('o', ConsoleColor.Yellow)
             );
 
             difficulty = new Difficulty(startingZombieHealth, playerBase, killCounter, board, rand);
@@ -132,7 +132,7 @@ namespace Application
 
             for (int row = 0; row < 4; row++) {
                 // Eget magasin per kanon, annars får alla samma spells
-                Cannon cannon = new(new(5, row), new SymbolSprite('C'), new RegularMagazine(2, 5));
+                Cannon cannon = new(new(5, row), new SymbolSprite('C', ConsoleColor.White), new RegularMagazine(2, 5));
                 cannon.AddSpell(basicSpell);
                 board.Add(cannon, cannonTicks);
             }

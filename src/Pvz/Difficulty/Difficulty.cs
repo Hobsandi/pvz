@@ -65,7 +65,7 @@ namespace Application
             // Formen slumpas efter vikt
             spellFactories = new WeightedTable<ISpellFactory>(rand);
             spellFactories.Add(new ProjectileSpellFactory(board, anyEffect, anyImpact,
-                new TrailSprite('>', '-')), PROJECTILE_WEIGHT);
+                new TrailSprite('>', '-', ConsoleColor.Yellow)), PROJECTILE_WEIGHT);
             spellFactories.Add(new BeamSpellFactory(board, anyEffect), BEAM_WEIGHT);
             spellFactories.Add(new AuraSpellFactory(board, anyEffect), AURA_WEIGHT);
         }

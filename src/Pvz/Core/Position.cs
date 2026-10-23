@@ -29,8 +29,8 @@ namespace Application
         public bool IsPastRightEdge() => x > RIGHT_EDGE;
 
         // Unsure about this one
-        public void Plot(ICanvas canvas, char symbol)
-            => canvas.Plot(x / PIXEL_SIZE, row, symbol);
+        public void Plot(ICanvas canvas, char symbol, ConsoleColor color)
+            => canvas.Plot(x / PIXEL_SIZE, row, symbol, color);
 
         public int CompareTo(Position other) => x.CompareTo(other.x);
     }

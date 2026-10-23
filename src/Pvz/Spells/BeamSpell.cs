@@ -3,7 +3,7 @@ namespace Application
     public class BeamSpell(IEffect effect, Board board)
         : AreaSpell(effect, board)
     {
-        protected override ISprite Sprite => new BeamSprite('=');
+        protected override ISprite Sprite => new BeamSprite('=', ConsoleColor.Cyan);
 
         protected override int Ticks => 3;
 
