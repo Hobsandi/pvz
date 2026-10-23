@@ -6,10 +6,22 @@ namespace Application
     // så "Start game" igen börjar från noll.
     public class GameRunner : IScreen
     {
+
+        //Game settings
+        const int zombieTicks = 6;
+        const int spawnTicks = 30;
+        const int baseHealth = 3;
+        const int startingZombieHealth = 100;
+        const int basicSpellDamage = 25;
+        const int cannonTicks = 20;
+
+
         readonly Canvas canvas = new(COLUMNS, ROWS);
         Board board = new();
-        PlayerBase playerBase = new(BASE_HEALTH);
-        KillCounter killCounter = new();
+        PlayerBase playerBase = new (baseHealth);
+        KillCounter killCounter;
+
+
 
         public string Describe()
             => $"Start game";
@@ -17,7 +29,8 @@ namespace Application
         public void Run()
         {
             board = new();
-            playerBase = new(BASE_HEALTH);
+            playerBase = new(baseHealth);
+            killCounter = new KillCounter();
             SetUp();
 
             Console.Write("\x1b[2J");
@@ -45,21 +58,26 @@ namespace Application
         // Kanoner och zombiespawner, det som låg i Program förut
         void SetUp()
         {
+            Random rand = new Random();
             ISpell basicSpell = new ProjectileSpell(
-                new DamageEffect(BASIC_SPELL_DAMAGE),
+                new DamageEffect(basicSpellDamage),
                 board, 3, new SingleImpact(), new SymbolSprite('o')
             );
+
+            Difficulty difficulty = new Difficulty(killCounter, 20, playerBase);
 
             RegularMagazine magazine = new RegularMagazine(2, 5);
 
             for (int row = 0; row < 4; row++) {
                 Cannon cannon = new(new(5, row), new SymbolSprite('C'), magazine);
                 cannon.AddSpell(basicSpell);
-                board.Add(cannon, CANNON_TICKS);
+                board.Add(cannon, cannonTicks);
             }
 
-            ZombieSpawner spawner = new(board, playerBase, new Random(), ZOMBIE_HEALTH, ZOMBIE_TICKS, killCounter);
-            board.Register(spawner, SPAWN_TICKS);
+            IZombieFactory startingFactory = new RegularZombieFactory(startingZombieHealth, playerBase, killCounter);
+
+            ZombieSpawner spawner = new(board, playerBase, rand, zombieTicks, difficulty);
+            board.Register(spawner, spawnTicks);
         }
     }
 }

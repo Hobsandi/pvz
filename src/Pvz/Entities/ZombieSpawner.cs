@@ -4,19 +4,24 @@ namespace Application
 {
     // Factory instead?
     public class ZombieSpawner(
-        Board board, PlayerBase playerBase, Random random,
-        int zombieHealth, int zombieTicks, KillCounter killCounter) : IUpdater
+        Board board, 
+        PlayerBase playerBase, 
+        Random random,
+        int zombieTicks,
+        Difficulty difficulty) : IUpdater
     {
+        private IZombieFactory zombieFactory;
+        /*
+        public void SetFactory(IZombieFactory newFactory)
+        {
+            zombieFactory = newFactory;
+        }
+        */
+        
         public void Update()
         {
-            Position start = new(RIGHT_EDGE, random.Next(ROWS));
-            Zombie zombie = random.Next(4) == 0
-                ? new Zombie(start, zombieHealth,
-                    new TeleportingMovement(random, 5),
-                    new SymbolSprite('T'), playerBase, killCounter)
-                : new Zombie(start, zombieHealth,
-                    new MichaelMovement(),
-                    new SymbolSprite('M'), playerBase, killCounter);
+            zombieFactory = difficulty.GetZombieFactory();
+            Zombie zombie = zombieFactory.GenerateZombie(board.RandomZombiePosition(random));
             board.Add(zombie, zombieTicks);
         }
 

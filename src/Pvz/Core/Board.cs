@@ -17,7 +17,13 @@ namespace Application
         readonly EntityList<Zombie> zombies = new();
         readonly EntityList<Flash> flashes = new();
         readonly EntityList<IUpdater> others = new();
+        private int lanes = GameConfig.ROWS;
+        private int width = GameConfig.COLUMNS * GameConfig.PIXEL_SIZE; 
+        public int RightEdge => width-1;
 
+
+        public int RandomLane(Random rand) => rand.Next(0,lanes);
+        public Position RandomZombiePosition(Random rand) => new Position(RightEdge, RandomLane(rand));
         public void Register(IUpdater updater, int ticksPerUpdate)
             => others.Add(updater, ticksPerUpdate);
 
@@ -41,6 +47,8 @@ namespace Application
             zombies.Update();
             others.Update();
 
+
+            //kolla alla zombies öka killcount
 
             flashes.RemoveDead();
             cannons.RemoveDead();
