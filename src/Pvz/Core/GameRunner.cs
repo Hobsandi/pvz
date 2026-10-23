@@ -4,11 +4,11 @@ namespace Application
 {
     // Spelar en runda. Varje gång Run() anropas byggs en ny bana,
     // så "Start game" igen börjar från noll.
-    public class GameRunner(Settings settings) : IScreen
+    public class GameRunner : IScreen
     {
         readonly Canvas canvas = new(COLUMNS, ROWS);
         Board board = new();
-        PlayerBase playerBase = new(settings.BaseHealth);
+        PlayerBase playerBase = new(BASE_HEALTH);
 
         public string Describe()
             => $"Start game";
@@ -16,7 +16,7 @@ namespace Application
         public void Run()
         {
             board = new();
-            playerBase = new(settings.BaseHealth);
+            playerBase = new(BASE_HEALTH);
             SetUp();
 
             Console.Write("\x1b[2J");
@@ -42,55 +42,21 @@ namespace Application
         // Kanoner och zombiespawner, det som låg i Program förut
         void SetUp()
         {
-            IEffectFactory anyEffect = new RandomEffectFactory([
-                new LowDamageEffectFactory(settings.ZombieHealth),
-                new HighDamageEffectFactory(settings.ZombieHealth),
-                new FreezeEffectFactory(),
-                new PoisonEffectFactory(board),
-            ]);
-            IImpactFactory anyImpact = new RandomImpactFactory([
-                new SingleImpactFactory(),
-                new PiercingImpactFactory(),
-                new ExplosiveImpactFactory(board),
-            ]);
+            ISpell basicSpell = new ProjectileSpell(
+                new DamageEffect(BASIC_SPELL_DAMAGE),
+                board, 3, new SingleImpact(), new SymbolSprite('o')
+            );
 
-            // En fabrik per rad, varje kanon får två spells från sin fabrik.
-            ISpellFactory[] rowFactories =
-            [
-                new ProjectileSpellFactory(board, anyEffect, anyImpact,
-                    new TrailSprite('>', '-')),
-                new BeamSpellFactory(board, new CompositeEffectFactory([
-                    new LowDamageEffectFactory(settings.ZombieHealth),
-                    new FreezeEffectFactory(),
-                ])),
+            RegularMagazine magazine = new RegularMagazine(2, 5);
 
-
-                new ProjectileSpellFactory(board,
-                    new CompositeEffectFactory([
-                        new LowDamageEffectFactory(settings.ZombieHealth),
-                        new PoisonEffectFactory(board),
-                    ]),
-                    new ExplosiveImpactFactory(board), new SymbolSprite('@')),
-                
-
-                new RandomSpellFactory([
-                    new AuraSpellFactory(board, new PoisonEffectFactory(board)),
-                    new BeamSpellFactory(board, anyEffect),
-                ]),
-            ];
-
-            for (int row = 0; row < ROWS; row++)
-            {
-                Position position = new(0, row);
-                Cannon cannon = new(position, new SymbolSprite('C'));
-                cannon.AddSpell(rowFactories[row].GenerateSpell());
-                cannon.AddSpell(rowFactories[row].GenerateSpell());
-                board.Add(cannon, settings.CannonTicks + row);
+            for (int row = 0; row < 4; row++) {
+                Cannon cannon = new(new(5, row), new SymbolSprite('C'), magazine);
+                cannon.AddSpell(basicSpell);
+                board.Add(cannon, CANNON_TICKS);
             }
 
-            ZombieSpawner spawner = new(board, playerBase, new Random(),
-                settings.ZombieHealth, settings.ZombieTicks);
-            board.Register(spawner, settings.SpawnTicks);
+            ZombieSpawner spawner = new(board, playerBase, new Random(), ZOMBIE_HEALTH, ZOMBIE_TICKS);
+            board.Register(spawner, SPAWN_TICKS);
         }
     }
 }

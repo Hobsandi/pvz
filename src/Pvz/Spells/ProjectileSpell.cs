@@ -3,7 +3,7 @@ namespace Application
     public class ProjectileSpell(
         IEffect effect,
         Board board,
-        int ticksPerStep,
+        int movSpeedTicksPerStep,
         IImpact impact,
         ISprite sprite) : ISpell
     {
@@ -12,7 +12,7 @@ namespace Application
         {
             Projectile projectile =
                 new(origin, effect, impact, sprite, board);
-            board.Add(projectile, ticksPerStep);
+            board.Add(projectile, movSpeedTicksPerStep);
         }
 
         public string Describe() => $"Projectile of {effect.Describe()}";

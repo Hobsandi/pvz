@@ -1,19 +1,15 @@
 namespace Application
 {
-    public class Cannon(Position position, ISprite sprite)
+    public class Cannon(Position position, ISprite sprite, IMagazine magazine)
         : IUpdater, IDrawable
     {
-        readonly List<ISpell> spells = [];
         int index = 0;
 
-        public void AddSpell(ISpell spell) => spells.Add(spell);
+        public void AddSpell(ISpell spell) => magazine.Load(spell);
 
         public void Update()
         {
-            if (spells.Count == 0) return;
-
-            spells[index].Cast(position);
-            index = (index + 1) % spells.Count;
+            magazine.Cast(position);
         }
 
         public bool IsAlive() => true;

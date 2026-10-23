@@ -15,19 +15,34 @@ kanske skiter vi i det helt och hållet
 
 namespace Application
 {
-    public class Magazine : IEnumerable<ISpell>
+    public class RegularMagazine(int capacity, int maxCapacity) : IMagazine
     {
-        private List<ISpell> spells;
+        private List<ISpell> spells = new List<ISpell>();
+        int index = 0;
 
 
         public IEnumerator<ISpell> GetEnumerator()
         {
-            throw new NotImplementedException();
+            return spells.GetEnumerator();
         }
 
-        // coolt namn
         public void Load(ISpell spell) => spells.Add(spell);
         
+        public void Upgrade()
+        {
+            if (capacity < maxCapacity)
+                capacity++;
+        }
+
+        public void Cast(Position position)
+        {
+            if (spells.Count == 0) return;
+
+            spells[index].Cast(position);
+            // Kanske blir ett problem sen
+            index = (index + 1) % spells.Count;
+        }
+
 
         IEnumerator IEnumerable.GetEnumerator()
         {
