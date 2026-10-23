@@ -1,9 +1,9 @@
 namespace Application
 {
-    public class RandomImpactFactory(IReadOnlyList<IImpactFactory> factories)
+    // Väljer en av fabrikerna efter vikt varje gång.
+    public class RandomImpactFactory(WeightedTable<IImpactFactory> factories)
         : IImpactFactory
     {
-        public IImpact GenerateImpact()
-            => factories[Random.Shared.Next(factories.Count)].GenerateImpact();
+        public IImpact GenerateImpact() => factories.Pick().GenerateImpact();
     }
 }

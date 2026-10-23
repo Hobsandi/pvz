@@ -1,10 +1,9 @@
 namespace Application
 {
-    // Väljer slumpmässigt en av de inskickade fabrikerna varje gång.
-    public class RandomEffectFactory(IReadOnlyList<IEffectFactory> factories)
+    // Väljer en av fabrikerna efter vikt varje gång.
+    public class RandomEffectFactory(WeightedTable<IEffectFactory> factories)
         : IEffectFactory
     {
-        public IEffect GenerateEffect()
-            => factories[Random.Shared.Next(factories.Count)].GenerateEffect();
+        public IEffect GenerateEffect() => factories.Pick().GenerateEffect();
     }
 }

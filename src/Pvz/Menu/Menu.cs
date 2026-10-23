@@ -14,6 +14,21 @@ namespace Application
         {
             index = (index - 1 + items.Count) % items.Count;
         }
+        // Visar menyn och väntar tills spelaren väljer med Enter
+        public T Choose()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Display();
+
+                ConsoleKey key = Console.ReadKey(true).Key;
+                if (key == ConsoleKey.DownArrow) Next();
+                else if (key == ConsoleKey.UpArrow) Previous();
+                else if (key == ConsoleKey.Enter) return Select();
+            }
+        }
+
         public void Display()
         {
             Console.WriteLine(title);

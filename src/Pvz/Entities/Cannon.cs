@@ -1,10 +1,8 @@
 namespace Application
 {
     public class Cannon(Position position, ISprite sprite, IMagazine magazine)
-        : IUpdater, IDrawable
+        : IUpdater, IDrawable, IDescribable
     {
-        int index = 0;
-
         public void AddSpell(ISpell spell) => magazine.Load(spell);
 
         public void Update()
@@ -15,5 +13,9 @@ namespace Application
         public bool IsAlive() => true;
 
         public void Draw(Canvas canvas) => sprite.Draw(canvas, position);
+
+        // Kanonens spells, t.ex. "Projectile of 25 damage, Beam of freeze..."
+        public string Describe()
+            => string.Join(", ", magazine.Select(spell => spell.Describe()));
     }
 }

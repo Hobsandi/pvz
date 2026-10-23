@@ -20,6 +20,8 @@ namespace Application
         Board board = new();
         PlayerBase playerBase = new (baseHealth);
         KillCounter killCounter;
+        Difficulty difficulty;
+        Upgrader upgrader;
 
 
 
@@ -37,6 +39,15 @@ namespace Application
             while (!playerBase.IsDestroyed())
             {
                 board.Update();
+                // Efter board.Update, så menyn aldrig öppnas mitt i en tick.
+                // Spelet står still medan menyn väntar på val.
+                while (upgrader.TryTakePending())
+                {
+                    Display();
+                    upgrader.RunUpgrade();
+                    // Rensa bort menyn innan planen ritas igen
+                    Console.Write("\x1b[2J");
+                }
                 Display();
                 Thread.Sleep(TICK_MS);
             }
@@ -64,13 +75,15 @@ namespace Application
                 board, 3, new SingleImpact(), new SymbolSprite('o')
             );
 
-            Difficulty difficulty = new Difficulty(startingZombieHealth, playerBase, killCounter, rand);
+            difficulty = new Difficulty(startingZombieHealth, playerBase, killCounter, board, rand);
             killCounter.Subscribe(difficulty);
 
-            RegularMagazine magazine = new RegularMagazine(2, 5);
+            upgrader = new Upgrader(difficulty, board);
+            killCounter.Subscribe(upgrader);
 
             for (int row = 0; row < 4; row++) {
-                Cannon cannon = new(new(5, row), new SymbolSprite('C'), magazine);
+                // Eget magasin per kanon, annars får alla samma spells
+                Cannon cannon = new(new(5, row), new SymbolSprite('C'), new RegularMagazine(2, 5));
                 cannon.AddSpell(basicSpell);
                 board.Add(cannon, cannonTicks);
             }
