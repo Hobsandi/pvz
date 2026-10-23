@@ -12,7 +12,7 @@ namespace Application
         const int spawnTicks = 30;
         const int baseHealth = 3;
         const int startingZombieHealth = 100;
-        const int basicSpellDamage = 25;
+        const int basicSpellDamage = 100;
         const int cannonTicks = 20;
 
 
@@ -64,7 +64,8 @@ namespace Application
                 board, 3, new SingleImpact(), new SymbolSprite('o')
             );
 
-            Difficulty difficulty = new Difficulty(killCounter, 20, playerBase);
+            Difficulty difficulty = new Difficulty(startingZombieHealth, playerBase, killCounter, rand);
+            killCounter.Subscribe(difficulty);
 
             RegularMagazine magazine = new RegularMagazine(2, 5);
 
@@ -73,8 +74,6 @@ namespace Application
                 cannon.AddSpell(basicSpell);
                 board.Add(cannon, cannonTicks);
             }
-
-            IZombieFactory startingFactory = new RegularZombieFactory(startingZombieHealth, playerBase, killCounter);
 
             ZombieSpawner spawner = new(board, playerBase, rand, zombieTicks, difficulty);
             board.Register(spawner, spawnTicks);

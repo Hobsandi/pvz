@@ -4,7 +4,7 @@ namespace Application
     // Är själv en IZombieFactory, så spawnern märker ingen skillnad.
     public class RandomZombieFactory(IReadOnlyList<IZombieFactory> factories) : IZombieFactory
     {
-        public Zombie GenerateZombie(Position position)
-            => factories[Random.Shared.Next(factories.Count)].GenerateZombie(position);
+        public Zombie GenerateZombie(Position position, int health)
+            => factories[Random.Shared.Next(factories.Count)].GenerateZombie(position, health);
     }
 }

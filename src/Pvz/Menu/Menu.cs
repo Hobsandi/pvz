@@ -1,6 +1,7 @@
 namespace Application
 {
     // PLATS FÖR ETT KRAV
+    // Vi behöver en ny klass för olika sorters menyer, olika inputhandling?
     public class Menu<T>(string title, IReadOnlyList<MenuItem<T>> items) where T : IDescribable 
     {
         private int index = 0;
