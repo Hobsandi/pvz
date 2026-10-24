@@ -1,8 +1,9 @@
 namespace Application
 {
-    // PLATS FÖR ETT KRAV
-    // Vi behöver en ny klass för olika sorters menyer, olika inputhandling?
-    public class Menu<T>(string title, IReadOnlyList<T> items) where T : IDescribable
+    // Håller reda på vilket alternativ som är valt och kan visa sig själv.
+    // Tangenterna sköts av MenuInput, så menyn vet inget om tangentbordet.
+    public class Menu<T>(string title, List<T> items)
+        where T : IDescribable
     {
         private int index = 0;
         public T Select() => items[index];
@@ -14,19 +15,15 @@ namespace Application
         {
             index = (index - 1 + items.Count) % items.Count;
         }
-        // Visar menyn och väntar tills spelaren väljer med Enter
-        public T Choose()
-        {
-            while (true)
-            {
-                Console.Clear();
-                Display();
 
-                ConsoleKey key = Console.ReadKey(true).Key;
-                if (key == ConsoleKey.DownArrow) Next();
-                else if (key == ConsoleKey.UpArrow) Previous();
-                else if (key == ConsoleKey.Enter) return Select();
-            }
+        public void Add(T item)
+        {
+            items.Add(item);
+        }
+
+        public void DrawCursor(ICanvas canvas)
+        {
+            canvas.Plot(0,index,'>');
         }
 
         public void Display()

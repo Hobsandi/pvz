@@ -13,6 +13,7 @@ namespace Application
     {
         //Vi har alla dessa listor för att bestämma vad som ritas över vad
         readonly EntityList<Cannon> cannons = new();
+        private Menu<Cannon> cannonMenu = new("Cannons", []);
         readonly EntityList<Projectile> projectiles = new();
         readonly EntityList<Zombie> zombies = new();
         readonly EntityList<Flash> flashes = new();
@@ -24,13 +25,14 @@ namespace Application
 
         public int RandomLane(Random rand) => rand.Next(0,lanes);
         public Position RandomZombiePosition(Random rand) => new Position(RightEdge, RandomLane(rand));
-        public IEnumerable<Cannon> Cannons() => cannons;
-
         public void Register(IUpdater updater, int ticksPerUpdate)
             => others.Add(updater, ticksPerUpdate);
 
         public void Add(Cannon cannon, int ticksPerUpdate)
-            => cannons.Add(cannon, ticksPerUpdate);
+        {
+            cannons.Add(cannon, ticksPerUpdate);
+            cannonMenu.Add(cannon);
+        }
 
         public void Add(Projectile projectile, int ticksPerUpdate)
             => projectiles.Add(projectile, ticksPerUpdate);
@@ -40,6 +42,10 @@ namespace Application
 
         public void Add(Flash flash, int ticksPerUpdate)
             => flashes.Add(flash, ticksPerUpdate);
+
+        /*
+        Handle<cannons>(menu<cannons> )
+        */
 
         public void Update()
         {
@@ -71,6 +77,13 @@ namespace Application
             Position center, int radius)
             => zombies.Where(zombie => zombie.IsWithin(center, radius));
 
+        public bool SelectCannon(MenuInput input, ConsoleKey key)
+        {
+            return input.Handle(cannonMenu,key);
+        }  
+
+        public void LoadSelected(ISpell spell) => cannonMenu.Select().AddSpell(spell);
+
         public void Draw(ICanvas canvas)
         {
             IEnumerable<IDrawable> drawables = projectiles
@@ -80,6 +93,14 @@ namespace Application
             foreach (IDrawable drawable in drawables)
                 drawable.Draw(canvas);
         }
+
+        public void DrawCursor(ICanvas canvas)
+        {
+            cannonMenu.DrawCursor(canvas);
+        }
+
+        public void WriteCannonInfo(ICanvas canvas)
+            => canvas.Write(0, 0, cannonMenu.Select().Describe());
 
         public IEnumerator<Zombie> GetEnumerator()
             => zombies.GetEnumerator();

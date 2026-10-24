@@ -27,7 +27,7 @@ namespace Application
             if (item == null)
                 Add(value, amount);
             else
-                item.AddWeightTo(amount);
+                item.IncreaseWeight(amount);
         }
 
         // Vikterna ligger som sträckor efter varandra:

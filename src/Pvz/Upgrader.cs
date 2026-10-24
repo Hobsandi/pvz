@@ -2,15 +2,13 @@ namespace Application
 {
     // Ger en uppgradering vid växande antal kills: 10, 25, 45, 70...
     // OnKill körs mitt i board.Update, så här noteras bara att en
-    // uppgradering väntar. GameRunner kör den efter ticken, och spelet
-    // står still medan menyn är öppen.
-    // Tar en ISpellFactory, inte en konkret klass: Upgrader bryr sig inte
-    // om hur spellsen skapas, bara att den kan få nya.
-    public class Upgrader(ISpellFactory spellFactory, Board board) : IKillObserver
+    // uppgradering väntar. GameRunner hämtar den efter ticken.
+    public class Upgrader(ISpellFactory spellFactory, MenuInput input)
+        : IKillObserver
     {
         const int SPELL_CHOICES = 3;
 
-        int nextUpgradeAt = 1;
+        int nextUpgradeAt = 10;
         int step = 10;
         int pending = 0;
 
@@ -22,7 +20,6 @@ namespace Application
             nextUpgradeAt += step;
         }
 
-        // En metod i stället för en property
         public bool TryTakePending()
         {
             if (pending == 0) return false;
@@ -30,32 +27,14 @@ namespace Application
             return true;
         }
 
-        // Välj en spell, välj en kanon, lägg spellen på kanonen
-        public void RunUpgrade()
+        // Visar tre nya spells och returnerar den spelaren väljer
+        public ISpell ChooseSpell()
         {
-            ISpell spell = ChooseSpell();
-            ChooseCannon(spell).AddSpell(spell);
-        }
-
-        ISpell ChooseSpell()
-        {
-            List<ISpell> items = new();
+            List<ISpell> spells = [];
             for (int i = 0; i < SPELL_CHOICES; i++)
-            {
-                ISpell spell = spellFactory.GenerateSpell();
-                items.Add(spell);
-            }
-            return new Menu<ISpell>("Upgrade! Pick a spell:", items).Choose();
-        }
-
-        //kommer göras om
-        Cannon ChooseCannon(ISpell spell)
-        {
-            List<Cannon> items = new();
-            int lane = 1;
-            foreach (Cannon cannon in board.Cannons())
-                items.Add(cannon);
-            return new Menu<Cannon>($"Which cannon gets \"{spell.Describe()}\"?", items).Choose();
+                spells.Add(spellFactory.GenerateSpell());
+            return input.Choose(
+                new Menu<ISpell>("Upgrade! Pick a spell:", spells));
         }
     }
 }

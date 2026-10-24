@@ -21,17 +21,16 @@ namespace Application
 
 
         Canvas canvas;
-        // ICanvas och inte Viewport: Write är en default-metod i ICanvas,
-        // och sådana går bara att anropa via gränssnittstypen
         ICanvas field;
         ICanvas hud;
         ICanvas cannonCursor;
-        ICanvas cannonMenu;
+        ICanvas infoport;
 
         Board board = new();
         PlayerBase playerBase = new (baseHealth);
         KillCounter killCounter;
         Upgrader upgrader;
+        MenuInput input = new();
 
 
 
@@ -52,21 +51,31 @@ namespace Application
             SetUp();
 
             Console.Write("\x1b[2J");
+            ISpell? waiting = null;
             while (!playerBase.IsDestroyed())
             {
-                board.Update();
-                // Efter board.Update, så menyn aldrig öppnas mitt i en tick.
-                // Spelet står still medan menyn väntar på val.
-                while (upgrader.TryTakePending())
+                if (Console.KeyAvailable
+                    && board.SelectCannon(input, Console.ReadKey(true).Key)
+                    && waiting != null)
                 {
-                    Display();
-                    upgrader.RunUpgrade();
-                    // Rensa bort menyn innan planen ritas igen
-                    Console.Write("\x1b[2J");
+                    board.LoadSelected(waiting);
+                    waiting = null;
                 }
+
+                if (waiting == null)
+                {
+                    board.Update();
+                    if (upgrader.TryTakePending())
+                    {
+                        waiting = upgrader.ChooseSpell();
+                        Console.Write("\x1b[2J");
+                    }
+                }
+
                 Display();
                 Thread.Sleep(TICK_MS);
             }
+
             Console.WriteLine("Game over! Press Enter to return to the menu.");
             Console.ReadLine();
         }
@@ -94,6 +103,7 @@ namespace Application
             field = new Viewport(canvas, x, y, COLUMNS, ROWS);
             hud = new Viewport(canvas, x, y + ROWS + HUD_GAP, COLUMNS, HUD_HEIGHT);
             cannonCursor = new Viewport(canvas,x-2,y,1,ROWS);
+            infoport = new Viewport(canvas, x+COLUMNS,y,COLUMNS,ROWS);
         }
 
         // Ritar en bild av spelet: planen och basens hälsa.
@@ -102,11 +112,14 @@ namespace Application
             canvas.Clear();
             DrawFieldBackground();
             board.Draw(field);
+            board.DrawCursor(cannonCursor);
+            board.WriteCannonInfo(infoport);
+            
 
             hud.Write(0, 0, playerBase.Describe());
             hud.Write(0, 1, $"Zombies killed: {killCounter.Kills}!");
 
-            cannonCursor.Write(0,0,">");
+            
 
             canvas.Render();
         }
@@ -139,10 +152,10 @@ namespace Application
                 new WeightedEffectFactory(board, startingZombieHealth, rand),
                 new WeightedImpactFactory(board, rand),
                 rand);
-            upgrader = new Upgrader(spellFactory, board);
+            upgrader = new Upgrader(spellFactory, new MenuInput());
             killCounter.Subscribe(upgrader);
 
-            
+
 
             for (int row = 0; row < 4; row++) {
                 // Eget magasin per kanon, annars får alla samma spells

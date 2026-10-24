@@ -11,26 +11,14 @@
                 new QuitScreen()
             ]);
 
-            menu.Choose().Run();
-
-            /*
-            ConsoleKey key;
-            do
+            // Tillbaka till menyn efter varje skärm. QuitScreen avslutar.
+            MenuInput input = new();
+            while (true)
             {
+                IScreen screen = input.Choose(menu);
                 Console.Clear();
-                menu.Display();
-
-                key = Console.ReadKey(true).Key;
-                if (key == ConsoleKey.DownArrow) menu.Next();
-                else if (key == ConsoleKey.UpArrow) menu.Previous();
-                else if (key == ConsoleKey.Enter) {
-                    Console.Clear(); 
-                    menu.Select().Run();
-                }
-                    
-            } while (key != ConsoleKey.Escape);
-
-            */
+                screen.Run();
+            }
         }
     }
 }
