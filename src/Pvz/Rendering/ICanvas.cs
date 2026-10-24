@@ -8,10 +8,13 @@ namespace Application
             Plot(x,y,symbol,ConsoleColor.Gray);
         }
 
-         void Write(int x, int y, string text)
+        void Write(int x, int y, string text)
         {
-            for (int i = 0; i < text.Length; i++)
-                Plot(x + i, y, text[i]);
+            string[] lines = text.Split('\n');
+            for (int row = 0; row < lines.Length; row++)
+                for (int i = 0; i < lines[row].Length; i++)
+                    Plot(x + i, y + row, lines[row][i]);
         }
+
     }
 }
