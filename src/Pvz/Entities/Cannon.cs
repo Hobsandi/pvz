@@ -1,6 +1,6 @@
 namespace Application
 {
-    public class Cannon(Position position, ISprite sprite, IMagazine magazine)
+    public class Cannon(Position position, ISprite sprite, IMagazine magazine, int lane)
         : IUpdater, IDrawable, IDescribable
     {
         public void AddSpell(ISpell spell) => magazine.Load(spell);
@@ -16,6 +16,8 @@ namespace Application
 
         // Kanonens spells, t.ex. "Projectile of 25 damage, Beam of freeze..."
         public string Describe()
-            => string.Join(", ", magazine.Select(spell => spell.Describe()));
+        {
+            return $"Lane #{lane} " + string.Join(", ", magazine.Select(spell => spell.Describe()));
+        }
     }
 }

@@ -39,21 +39,22 @@ namespace Application
 
         ISpell ChooseSpell()
         {
-            List<MenuItem<ISpell>> items = new();
+            List<ISpell> items = new();
             for (int i = 0; i < SPELL_CHOICES; i++)
             {
                 ISpell spell = spellFactory.GenerateSpell();
-                items.Add(new MenuItem<ISpell>(spell.Describe(), spell));
+                items.Add(spell);
             }
             return new Menu<ISpell>("Upgrade! Pick a spell:", items).Choose();
         }
 
+        //kommer göras om
         Cannon ChooseCannon(ISpell spell)
         {
-            List<MenuItem<Cannon>> items = new();
+            List<Cannon> items = new();
             int lane = 1;
             foreach (Cannon cannon in board.Cannons())
-                items.Add(new MenuItem<Cannon>($"Lane {lane++}: {cannon.Describe()}", cannon));
+                items.Add(cannon);
             return new Menu<Cannon>($"Which cannon gets \"{spell.Describe()}\"?", items).Choose();
         }
     }

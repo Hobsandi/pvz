@@ -2,10 +2,10 @@ namespace Application
 {
     // PLATS FÖR ETT KRAV
     // Vi behöver en ny klass för olika sorters menyer, olika inputhandling?
-    public class Menu<T>(string title, IReadOnlyList<MenuItem<T>> items) where T : IDescribable 
+    public class Menu<T>(string title, IReadOnlyList<T> items) where T : IDescribable
     {
         private int index = 0;
-        public T Select() => items[index].Value;
+        public T Select() => items[index];
         public void Next()
         {
             index = (index + 1) % items.Count;
@@ -42,7 +42,7 @@ namespace Application
                 {
                     Console.Write("  ");
                 }
-                Console.WriteLine($"{i + 1}. {items[i].Name}");
+                Console.WriteLine($"{i + 1}. {items[i].Describe()}");
             }
         }
 

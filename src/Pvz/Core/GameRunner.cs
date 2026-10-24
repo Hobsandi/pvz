@@ -134,13 +134,19 @@ namespace Application
             ScalingZombieFactory zombieFactory = new(startingZombieHealth, playerBase, killCounter, rand);
             killCounter.Subscribe(zombieFactory);
 
-            ISpellFactory spellFactory = new WeightedSpellFactory(board, startingZombieHealth, rand);
+            ISpellFactory spellFactory = new WeightedSpellFactory(
+                board,
+                new WeightedEffectFactory(board, startingZombieHealth, rand),
+                new WeightedImpactFactory(board, rand),
+                rand);
             upgrader = new Upgrader(spellFactory, board);
             killCounter.Subscribe(upgrader);
 
+            
+
             for (int row = 0; row < 4; row++) {
                 // Eget magasin per kanon, annars får alla samma spells
-                Cannon cannon = new(new(5, row), new SymbolSprite('C', ConsoleColor.White), new RegularMagazine(2, 5));
+                Cannon cannon = new(new(5, row), new SymbolSprite('C', ConsoleColor.White), new RegularMagazine(2, 5),row);
                 cannon.AddSpell(basicSpell);
                 board.Add(cannon, cannonTicks);
             }
